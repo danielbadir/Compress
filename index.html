@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<!-- LPagesAppLabs Platform v1.0 · Compress (.apx) · contact@lpagesapplabs.com -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compress — Next-Generation Archive Format Research</title>
+  <meta name="description" content="LPagesAppLabs Labs: Compress is a research project building a content-addressed, adaptive archive format (.apx) with full-text search, versioning, and encryption.">
+  <link rel="canonical" href="https://compress.lpagesapplabs.com/" />
+  <meta property="og:title" content="Compress — Next-Generation Archive Format Research" />
+  <meta property="og:description" content="Research project: .apx archive format with content-addressed deduplication, adaptive compression, and encryption. Prototype Alpha." />
+  <meta property="og:url" content="https://compress.lpagesapplabs.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="https://lpagesapplabs.com/favicon.ico" sizes="any">
+  <link rel="icon" href="https://lpagesapplabs.com/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.bunny.net">
+  <link href="https://fonts.bunny.net/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F172A; --bg2: #111827;
+      --surface: #1E293B; --surface2: #162032;
+      --slate: #64748B; --slate-bright: #94A3B8;
+      --slate-glow: rgba(100,116,139,0.15);
+      --slate-glow2: rgba(100,116,139,0.07);
+      --accent: #7DD3FC; /* sky-300 — bright research accent */
+      --cyan: #22D3EE;
+      --emerald: #10B981;
+      --white: #F8FAFC; --muted: #94A3B8;
+      --border: rgba(100,116,139,0.22);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7; overflow-x: hidden; }
+    body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; opacity:0.4; }
+    section { position: relative; z-index: 1; }
+
+    nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:1.25rem 5%; background:rgba(15,23,42,0.88); backdrop-filter:blur(18px); border-bottom:1px solid var(--border); }
+    .nav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:var(--white); display:flex; align-items:center; gap:0.5rem; text-decoration:none; }
+    .nav-logo span { color:var(--accent); }
+    .nav-right { display:flex; align-items:center; gap:2rem; }
+    .nav-links { display:flex; gap:2rem; }
+    .nav-links a { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--muted); text-decoration:none; letter-spacing:0.08em; text-transform:uppercase; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--accent); }
+    .nav-platform { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted); text-decoration:none; letter-spacing:0.08em; text-transform:uppercase; border:1px solid var(--border); padding:0.35rem 0.8rem; border-radius:6px; transition:all 0.2s; }
+    .nav-platform:hover { color:var(--cyan); border-color:rgba(34,211,238,0.3); }
+    .nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+    .nav-hamburger span { display:block; width:22px; height:2px; background:var(--muted); border-radius:2px; }
+    .nav-mobile { display:none; flex-direction:column; background:rgba(15,23,42,0.97); border-top:1px solid var(--border); padding:1rem 5%; position:fixed; top:62px; left:0; right:0; z-index:99; }
+    .nav-mobile a { font-family:'DM Mono',monospace; font-size:0.85rem; color:var(--muted); text-decoration:none; letter-spacing:0.08em; text-transform:uppercase; padding:0.75rem 0; border-bottom:1px solid rgba(255,255,255,0.04); transition:color 0.2s; }
+    .nav-mobile a:last-child { border-bottom:none; }
+    .nav-mobile a:hover { color:var(--accent); }
+    .nav-mobile.open { display:flex; }
+
+    #hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:10rem 5% 6rem; overflow:hidden; }
+    .hero-glow { position:absolute; width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(100,116,139,0.1) 0%, transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+    .hero-badge { display:inline-flex; align-items:center; gap:0.5rem; font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); background:var(--slate-glow2); border:1px solid var(--border); padding:0.4rem 1rem; border-radius:999px; margin-bottom:2rem; animation:fadeUp 0.6s ease both; }
+    .badge-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:blink 3s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(2rem,5vw,4rem); line-height:1.15; letter-spacing:-0.02em; margin-bottom:1.5rem; animation:fadeUp 0.7s 0.1s ease both; }
+    h1 .accent { color:var(--accent); }
+    .hero-sub { font-size:clamp(1rem,2vw,1.15rem); color:var(--muted); max-width:520px; margin:0 auto 2.8rem; font-weight:300; animation:fadeUp 0.7s 0.2s ease both; }
+
+    .lab-note { display:flex; align-items:flex-start; gap:0.8rem; background:var(--slate-glow2); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; padding:1.2rem 1.5rem; max-width:580px; margin:0 auto 2rem; animation:fadeUp 0.7s 0.3s ease both; text-align:left; }
+    .lab-note-icon { font-size:1.2rem; flex-shrink:0; margin-top:0.1rem; }
+    .lab-note p { font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--muted); line-height:1.7; }
+    .lab-note strong { color:var(--accent); }
+
+    .hero-stat-bar { display:flex; gap:2.5rem; flex-wrap:wrap; justify-content:center; margin-top:4rem; padding-top:3rem; border-top:1px solid var(--border); animation:fadeUp 0.7s 0.45s ease both; }
+    .stat { text-align:center; }
+    .stat-num { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:700; color:var(--accent); }
+    .stat-label { font-size:0.75rem; color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    .section-label { font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:1rem; }
+    .section-title { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; line-height:1.2; margin-bottom:1rem; }
+
+    /* VISION */
+    #vision { padding:7rem 5%; background:var(--surface2); border-top:1px solid var(--border); }
+    .vision-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+    .vision-copy p { color:var(--muted); margin-bottom:1.5rem; font-size:1rem; }
+    .vision-goals { display:flex; flex-direction:column; gap:0.7rem; }
+    .goal-row { display:flex; align-items:flex-start; gap:0.8rem; padding:1rem 1.2rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
+    .goal-icon { font-size:1.1rem; flex-shrink:0; margin-top:0.1rem; }
+    .goal-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; margin-bottom:0.2rem; }
+    .goal-desc { font-size:0.8rem; color:var(--muted); }
+
+    /* MILESTONES */
+    #milestones { padding:7rem 5%; }
+    .milestones-inner { max-width:800px; margin:0 auto; }
+    .milestones-header { text-align:center; margin-bottom:3.5rem; }
+    .milestones-header p { color:var(--muted); font-size:1rem; margin-top:0.5rem; }
+    .milestone-list { display:flex; flex-direction:column; }
+    .milestone { display:grid; grid-template-columns:56px 1fr; gap:1.5rem; padding:1.8rem 0; border-bottom:1px solid rgba(255,255,255,0.04); align-items:start; }
+    .milestone:last-child { border-bottom:none; }
+    .m-num { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:0.8rem; flex-shrink:0; }
+    .m-num.active { background:var(--slate-glow); border:1px solid rgba(100,116,139,0.35); color:var(--accent); }
+    .m-num.next { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--muted); }
+    .m-label { font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:0.2rem; }
+    .m-name { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:0.3rem; }
+    .m-desc { font-size:0.88rem; color:var(--muted); }
+    .m-items { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.8rem; }
+    .m-item { font-family:'DM Mono',monospace; font-size:0.67rem; padding:0.2rem 0.55rem; border-radius:4px; }
+    .m-item.todo { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--muted); }
+
+    /* ROADMAP VISION */
+    #longterm { padding:6rem 5%; background:var(--surface2); border-top:1px solid var(--border); }
+    .lt-inner { max-width:900px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+    .lt-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.5rem; }
+    .lt-icon { font-size:1.5rem; margin-bottom:0.7rem; }
+    .lt-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; margin-bottom:0.4rem; color:var(--accent); }
+    .lt-desc { font-size:0.82rem; color:var(--muted); line-height:1.6; }
+
+    #contact { padding:6rem 5%; text-align:center; }
+    .contact-box { max-width:480px; margin:2rem auto 0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2.5rem; }
+    .contact-box p { color:var(--muted); font-size:0.95rem; margin-bottom:1.4rem; }
+    .contact-email { display:inline-block; font-family:'DM Mono',monospace; font-size:0.95rem; color:var(--accent); text-decoration:none; padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; transition:border-color 0.2s; }
+    .contact-email:hover { border-color:var(--accent); }
+
+    footer { padding:2.5rem 5%; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; position:relative; z-index:1; }
+    .footer-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:0.95rem; text-decoration:none; color:var(--white); }
+    .footer-logo span { color:var(--accent); }
+    .footer-links { display:flex; gap:1.8rem; flex-wrap:wrap; }
+    .footer-links a { font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--accent); }
+    .footer-copy { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted); opacity:0.5; }
+
+    .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity:1; transform:none; }
+
+    @media(max-width:768px){
+      .vision-inner { grid-template-columns:1fr; gap:3rem; }
+      .nav-links{display:none} .nav-hamburger{display:flex} .nav-right{gap:1rem}
+      #hero{padding:7rem 5% 4rem} h1{font-size:clamp(1.9rem,8vw,2.8rem)}
+      .hero-stat-bar{gap:1.5rem;margin-top:2.5rem;padding-top:2rem} .stat-num{font-size:1.3rem}
+      footer{flex-direction:column;text-align:center;align-items:center} .footer-links{justify-content:center;gap:1rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero" class="nav-logo"><span>compress</span> · .apx</a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#vision">Vision</a>
+      <a href="#milestones">Milestones</a>
+      <a href="#longterm">Long-term</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="https://lpagesapplabs.com" class="nav-platform" rel="noopener noreferrer">← Platform</a>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="#vision" onclick="closeMenu()">Vision</a>
+  <a href="#milestones" onclick="closeMenu()">Milestones</a>
+  <a href="#longterm" onclick="closeMenu()">Long-term</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+  <a href="https://lpagesapplabs.com" onclick="closeMenu()">← Platform</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span class="badge-dot"></span> Prototype Alpha · Labs / R&amp;D · Python → Rust</div>
+  <h1>A Smarter<br>Archive <span class="accent">Format</span></h1>
+  <p class="hero-sub">Research project: a content-addressed, collection-aware archive system with adaptive compression, full-text search, versioning, and encryption. Codename: <code>.apx</code>.</p>
+
+  <div class="lab-note">
+    <span class="lab-note-icon">🔬</span>
+    <p><strong>This is a research project.</strong> No release date, no public build. Architecture is being proven before any consumer product is built. Listed here for transparency on what we are working on and why.</p>
+  </div>
+
+  <div class="hero-stat-bar">
+    <div class="stat"><div class="stat-num">.apx</div><div class="stat-label">Archive format</div></div>
+    <div class="stat"><div class="stat-num">M0</div><div class="stat-label">Current milestone</div></div>
+    <div class="stat"><div class="stat-num">Python</div><div class="stat-label">Prototype lang</div></div>
+    <div class="stat"><div class="stat-num">Rust</div><div class="stat-label">Target core lang</div></div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section id="vision">
+  <div class="vision-inner">
+    <div class="vision-copy reveal">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-title">Why Build a New Archive Format?</h2>
+      <p>Zip and tar were designed in a different era. They treat an archive as a flat list of files — no deduplication, no search, no relationships, no adaptive compression. Every repack is a full copy.</p>
+      <p>For structured creative and technical projects — codebases, design assets, research data — the archive format itself should understand the content.</p>
+    </div>
+    <div class="vision-goals reveal">
+      <div class="goal-row"><span class="goal-icon">🧩</span><div><div class="goal-title">Content-Addressed Deduplication</div><div class="goal-desc">Identical chunks stored once. Incremental archives without redundancy.</div></div></div>
+      <div class="goal-row"><span class="goal-icon">📦</span><div><div class="goal-title">Adaptive Compression</div><div class="goal-desc">Per-chunk, per-content-type algorithm selection. Code ≠ images ≠ audio.</div></div></div>
+      <div class="goal-row"><span class="goal-icon">🔍</span><div><div class="goal-title">Full-Text & Metadata Search</div><div class="goal-desc">Find a file inside an archive without extracting. SQLite metadata index.</div></div></div>
+      <div class="goal-row"><span class="goal-icon">⏱</span><div><div class="goal-title">Versioning & Delta Storage</div><div class="goal-desc">Track changes over time. Only changed chunks stored in each version.</div></div></div>
+      <div class="goal-row"><span class="goal-icon">🔐</span><div><div class="goal-title">Encryption</div><div class="goal-desc">First-class encrypted archives, not an afterthought.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MILESTONES -->
+<section id="milestones">
+  <div class="milestones-inner">
+    <div class="milestones-header reveal">
+      <div class="section-label">Milestones</div>
+      <h2 class="section-title">Proving the Architecture First</h2>
+      <p>Each milestone must be benchmarked and proven before the next begins. No premature optimization.</p>
+    </div>
+    <div class="milestone-list">
+      <div class="milestone reveal">
+        <div class="m-num active">M0</div>
+        <div>
+          <div class="m-label">Current — Prototype Alpha</div>
+          <div class="m-name">Foundation</div>
+          <p class="m-desc">SQLite metadata schema, archive inspector, verification, and benchmark framework.</p>
+          <div class="m-items">
+            <span class="m-item todo">SQLite schema</span>
+            <span class="m-item todo">alpha inspect</span>
+            <span class="m-item todo">alpha verify</span>
+            <span class="m-item todo">Benchmark framework</span>
+            <span class="m-item todo">Unit test skeleton</span>
+          </div>
+        </div>
+      </div>
+      <div class="milestone reveal">
+        <div class="m-num next">M1</div>
+        <div>
+          <div class="m-name">Basic Archive I/O</div>
+          <p class="m-desc"><code>alpha create</code> and <code>alpha extract</code>. Single-pass flat archive, no deduplication yet. Baseline benchmarks established.</p>
+        </div>
+      </div>
+      <div class="milestone reveal">
+        <div class="m-num next">M2</div>
+        <div>
+          <div class="m-name">Content-Addressed Deduplication</div>
+          <p class="m-desc">Chunk boundaries, rolling hash, content-addressed chunk store. Measure space savings on real project trees.</p>
+        </div>
+      </div>
+      <div class="milestone reveal">
+        <div class="m-num next">M3</div>
+        <div>
+          <div class="m-name">Adaptive Compression</div>
+          <p class="m-desc">Per-chunk algorithm selection. Benchmark zstd, brotli, and lz4 across content types. Choose per file signature.</p>
+        </div>
+      </div>
+      <div class="milestone reveal">
+        <div class="m-num next">M4+</div>
+        <div>
+          <div class="m-name">Search · Versioning · Encryption · Rust Core</div>
+          <p class="m-desc">Full-text metadata search, delta versioning, first-class encryption, and migration of the core to Rust for performance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LONG-TERM VISION -->
+<section id="longterm">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+      <div class="section-label">Long-Term Vision</div>
+      <h2 class="section-title">What It Could Become</h2>
+      <p style="color:var(--muted);font-size:1rem;max-width:500px;margin:0.5rem auto 0;">If the research proves out, these are the product directions that follow.</p>
+    </div>
+    <div class="lt-inner reveal">
+      <div class="lt-card"><div class="lt-icon">💾</div><div class="lt-title">Developer Archiver</div><div class="lt-desc">A replacement for zip/tar in developer workflows — fast, searchable, deduplicated project archives.</div></div>
+      <div class="lt-card"><div class="lt-icon">🎨</div><div class="lt-title">Creative Asset Storage</div><div class="lt-desc">Archive format for design studios and video teams — where assets are large, versioned, and referenced repeatedly.</div></div>
+      <div class="lt-card"><div class="lt-icon">🔐</div><div class="lt-title">Encrypted Backup Format</div><div class="lt-desc">Encrypted, deduplicated, searchable offline backups — the data layer beneath future LPagesAppLabs products.</div></div>
+      <div class="lt-card"><div class="lt-icon">📚</div><div class="lt-title">Research & Data Archives</div><div class="lt-desc">Structured archives for research datasets — with provenance, versioning, and relationship graphs.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title">Follow the Research</h2>
+  </div>
+  <div class="contact-box reveal">
+    <p>Interested in this problem space? We'd love to talk.</p>
+    <a href="mailto:contact@lpagesapplabs.com" class="contact-email">contact@lpagesapplabs.com</a>
+  </div>
+</section>
+
+<footer>
+  <a href="#hero" class="footer-logo"><span>compress</span> · .apx</a>
+  <div class="footer-links">
+    <a href="#vision">Vision</a>
+    <a href="#milestones">Milestones</a>
+    <a href="#contact">Contact</a>
+    <a href="https://lpagesapplabs.com" style="color:var(--cyan);" rel="noopener noreferrer">lpagesapplabs.com</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </div>
+  <div class="footer-copy">© 2026 LPagesAppLabs / D.Badi · Research Project</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  const hamburger = document.getElementById('hamburger');
+  const navMobile = document.getElementById('navMobile');
+  hamburger.addEventListener('click', () => navMobile.classList.toggle('open'));
+  function closeMenu() { navMobile.classList.remove('open'); }
+</script>
+</body>
+</html>
